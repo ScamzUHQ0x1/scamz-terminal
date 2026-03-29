@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>scamz terminal Dashboard</title>
+</head>
+<body>
+
+    <div class="header">
+      <div class="title">scamz terminal</div>
+      <div class="window-controls">
+        <div class="control-btn" id="min-btn">－</div>
+        <div class="control-btn" id="max-btn">▢</div>
+        <div class="control-btn close-btn" id="close-btn">✕</div>
+      </div>
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="nav-icon active" id="nav-ports" title="Scanner de Ports">⚡</div>
+            <div class="nav-icon" id="nav-vulns" title="Scanner de Vulnerabilites">🛡️</div>
+            <div class="nav-icon" id="nav-search" title="Recherche">🔍</div>
+            <div class="spacer"></div>
+            <div class="nav-icon" id="nav-docs" title="Profil & Réseaux">📄</div>
+            <div class="nav-icon" id="nav-settings" title="Settings">⚙️</div>
+        </aside>
+
+        <main class="main-content">
+            <div id="view-ports" class="view active">
+                <header class="top-bar">
+                    <div class="target-label">ENDPOINT</div>
+                    <input type="text" id="targetInput" class="search-input" placeholder="scanme.nmap.org">
+                    <button id="scanBtn" class="scan-button">INIT_SCAN</button>
+                </header>
+
+                <section class="stats-grid">
+                    <div class="stat-card">
+                        <label>TOTAL_PORTS</label>
+                        <div class="value purple" id="count-ports">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>ACTIVE_NODES</label>
+                        <div class="value purple" id="count-open">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>THREAT_LEVEL</label>
+                        <div class="value blue" id="count-vulns">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <label>CRITICAL_CVE</label>
+                        <div class="value red" id="count-critical">0</div>
+                    </div>
+                </section>
+
+                <section class="results-container">
+                    <div class="results-header"><span>[ DATA_FEED ]</span> PORT_MAPPING_PROTOCOL</div>
+                    <div class="table-wrapper">
+                        <table id="resultsTable">
+                            <thead>
+                                <tr>
+                                    <th>PORT</th>
+                                    <th>PROTO</th>
+                                    <th>SERVICE</th>
+                                    <th>STATUS</th>
+                                    <th>SEVERITY</th>
+                                    <th>BANNER_GRAB</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="view-vulns" class="view">
+                <header class="top-bar">
+                    <div class="target-label">XSS_ENGINE</div>
+                    <input type="text" id="vulnTargetInput" class="search-input" placeholder="http://target.com/search?q=">
+                    <button id="vulnScanBtn" class="scan-button">RUN_XSS_CHECK</button>
+                </header>
+
+                <section class="results-container">
+                    <div class="results-header" style="color: #a371ff;"><span>[ VULN_SCAN ]</span> XSS_INJECTION_REPORT</div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>PAYLOAD</th>
+                                    <th>TARGET_URL</th>
+                                    <th>METHOD</th>
+                                    <th>STATUS</th>
+                                    <th>LEVEL</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vulnResultsBody">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 40px; color: #444; font-family: 'JetBrains Mono', monospace;">NO_ACTIVE_ANALYSIS</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="view-search" class="view">
+                <header class="top-bar">
+                    <div class="target-label">OSINT_INTEL</div>
+                    <input type="text" id="searchInput" class="search-input" placeholder="IP, DOMAIN or USER">
+                    <button id="searchBtn" class="scan-button" style="border-color: #a371ff; color: #a371ff;">FETCH_DATA</button>
+                </header>
+                
+                <div class="osint-layout">
+                    <div class="osint-main-column">
+                        <div id="drop-zone" class="drop-zone">
+                            <span id="drop-text" class="drop-zone-text">DRAG_IMAGE_FOR_VISION_ANALYSIS</span>
+                        </div>
+
+                        <section class="results-container">
+                            <div class="results-header" style="color: #a371ff;"><span>[ OSINT ]</span> INTELLIGENCE_FEED</div>
+                            <div id="searchContent" style="padding: 20px; color: #888; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6; height: 250px; overflow-y: auto;">
+                                > System idle...
+                            </div>
+                        </section>
+                    </div>
+
+                    <aside class="osint-sidebar">
+                        <div class="intel-card">
+                            <label>COORDINATES</label>
+                            <div class="intel-content" id="dns-data">N/A</div>
+                        </div>
+                        <div class="intel-card">
+                            <label>VISION_LABELS</label>
+                            <div class="intel-content" id="social-data">N/A</div>
+                        </div>
+                        <div class="intel-card">
+                            <label>FILE_PATH</label>
+                            <div class="intel-content" id="leak-data" style="word-break: break-all;">N/A</div>
+                        </div>
+                        <div class="intel-card">
+                            <label>ZIP_CODE</label>
+                            <div class="intel-content" id="sub-data">N/A</div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <div id="view-settings" class="view">
+                <section class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <h2 style="color: var(--accent-purple); margin-bottom: 30px;">SETTINGS</h2>
+                        </div>
+                        <div class="social-links">
+                            <div class="social-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                                <label style="font-size: 9px; color: #555; letter-spacing: 1px;">GOOGLE_VISION_API_KEY</label>
+                                <input type="password" id="api-key-input" class="search-input" placeholder="AIzaSy..." style="width: 100%; background: rgba(255,255,255,0.03); border-radius: 4px; border: 1px solid var(--border-white);">
+                                <button class="scan-button" style="width: 100%; margin-top: 10px; margin-right: 0;" id="saveKeyBtn">SAVE_CONFIG</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="view-docs" class="view">
+                <section class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="avatar">
+                                <img src="./src/assets/background.jpg" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+                            </div>
+                            <h2>SCAMZ</h2>
+                        </div>
+                        <div class="social-links">
+                            <div class="social-item">
+                                <div class="social-info">
+                                    <label>DISCORD_ID</label>
+                                    <div class="social-value">scamzuhq</div>
+                                </div>
+                                <button class="copy-btn" onclick="copyText('scamzuhq')">COPY</button>
+                            </div>
+                            <div class="social-item">
+                                <div class="social-info">
+                                    <label>TELEGRAM_HANDLE</label>
+                                    <div class="social-value">@scamzuhq</div>
+                                </div>
+                                <button class="copy-btn" onclick="window.open('https://t.me/scamzuhq', '_blank')">LINK</button>
+                            </div>
+                            <div class="social-item">
+                                <div class="social-info">
+                                    <label>REPOSITORY</label>
+                                    <div class="social-value">guns.lol/scamz</div>
+                                </div>
+                                <button class="copy-btn" onclick="window.open('https://guns.lol/scamz', '_blank')">VISIT</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <footer class="terminal-box" id="terminal-logs">
+                <div class="log-entry system">[*] scamz terminal v2.1.0 ready. Terminal initialized.</div>
+            </footer>
+        </main>
+    </div>
+
+    <style>
+        :root {
+            --bg-dark: #070708;
+            --glass-bg: rgba(10, 10, 12, 0.75);
+            --accent-purple: #a371ff;
+            --accent-blue: #00d1ff;
+            --border-white: rgba(255, 255, 255, 0.08);
+            --text-main: #e0e0e0;
+            --text-dim: #666;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 35px;
+            background: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            -webkit-app-region: drag;
+            border-bottom: 1px solid var(--border-white);
+        }
+
+        .title { font-size: 11px; font-weight: bold; color: var(--accent-purple); letter-spacing: 1px; }
+
+        .window-controls { display: flex; gap: 5px; -webkit-app-region: no-drag; }
+        .control-btn { cursor: pointer; padding: 5px 10px; font-size: 12px; color: var(--text-dim); }
+        .control-btn:hover { color: #fff; }
+        .close-btn:hover { color: #ff4b5c; }
+
+        .app-container { display: flex; height: calc(100vh - 35px); }
+
+        .sidebar {
+            width: 64px;
+            background: rgba(0,0,0,0.4);
+            border-right: 1px solid var(--border-white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        .nav-icon {
+            width: 44px;
+            height: 44px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-dim);
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .nav-icon:hover, .nav-icon.active {
+            background: rgba(163, 113, 255, 0.1);
+            color: var(--accent-purple);
+        }
+
+        .main-content { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+
+        .view { display: none; flex-direction: column; gap: 15px; flex: 1; }
+        .view.active { display: flex; }
+
+        .top-bar { display: flex; background: var(--glass-bg); border: 1px solid var(--border-white); border-radius: 4px; padding: 4px; align-items: center; }
+        .target-label { padding: 0 15px; font-size: 9px; font-weight: bold; color: #555; border-right: 1px solid var(--border-white); }
+        .search-input { flex: 1; background: transparent; border: none; color: #fff; padding: 10px; font-family: monospace; font-size: 12px; }
+        .search-input:focus { outline: none; }
+        
+        .scan-button { background: transparent; border: 1px solid var(--accent-purple); color: var(--accent-purple); padding: 8px 15px; border-radius: 3px; font-size: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .scan-button:hover { background: var(--accent-purple); color: #000; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .stat-card { background: var(--glass-bg); border: 1px solid var(--border-white); padding: 15px; border-radius: 6px; }
+        .stat-card label { font-size: 9px; color: var(--text-dim); display: block; margin-bottom: 5px; }
+        .stat-card .value { font-size: 20px; font-weight: bold; font-family: monospace; }
+        .purple { color: var(--accent-purple); } .blue { color: var(--accent-blue); } .red { color: #ff4b5c; }
+
+        .results-container { background: var(--glass-bg); border: 1px solid var(--border-white); border-radius: 6px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .results-header { padding: 10px 15px; font-size: 10px; border-bottom: 1px solid var(--border-white); }
+        .table-wrapper { overflow-y: auto; flex: 1; }
+        
+        table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 11px; }
+        th { text-align: left; padding: 10px; color: #555; border-bottom: 1px solid var(--border-white); }
+        td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+
+        .terminal-box { height: 100px; background: #000; border: 1px solid var(--border-white); padding: 10px; font-family: monospace; font-size: 10px; overflow-y: auto; color: #777; border-radius: 4px; }
+        .log-entry { margin-bottom: 4px; }
+
+        .osint-layout { display: flex; gap: 15px; flex: 1; }
+        .osint-main-column { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        .osint-sidebar { width: 250px; display: flex; flex-direction: column; gap: 10px; }
+        .intel-card { background: var(--glass-bg); border: 1px solid var(--border-white); padding: 12px; border-radius: 4px; }
+        .intel-card label { font-size: 8px; color: var(--text-dim); display: block; margin-bottom: 5px; }
+        .intel-content { font-size: 10px; color: var(--accent-blue); font-family: monospace; }
+        
+        .drop-zone { height: 60px; border: 1px dashed var(--accent-purple); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--accent-purple); transition: 0.3s; }
+        .drop-zone.dragover { background: rgba(163, 113, 255, 0.1); border-style: solid; }
+        
+        .profile-container { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .profile-card { background: var(--glass-bg); border: 1px solid var(--border-white); padding: 30px; border-radius: 8px; width: 320px; text-align: center; }
+        .avatar { width: 60px; height: 60px; background: #111; margin: 0 auto 15px; border-radius: 4px; overflow: hidden; }
+        .social-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 10px; margin-bottom: 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+        .social-info { text-align: left; }
+        .social-info label { font-size: 8px; color: #555; }
+        .social-value { font-size: 12px; }
+        .copy-btn { background: transparent; border: 1px solid var(--accent-purple); color: var(--accent-purple); padding: 4px 8px; font-size: 9px; cursor: pointer; border-radius: 2px; }
+        
+        .spacer { flex: 1; }
+        .badge { padding: 2px 5px; border-radius: 3px; font-size: 9px; }
+        .state-open { background: rgba(163,113,255,0.1); color: var(--accent-purple); }
+        .risk-high { background: rgba(255, 75, 92, 0.1); color: #ff4b5c; }
+        .risk-low { color: #888; }
+    </style>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const fs = require('fs');
+
+        let GOOGLE_API_KEY = "";
+
+        function switchView(navId, viewId) {
+            document.querySelectorAll(".nav-icon").forEach(i => i.classList.remove("active"));
+            document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+            document.getElementById(navId).classList.add("active");
+            document.getElementById(viewId).classList.add("active");
+        }
+
+        document.getElementById("nav-ports").onclick = () => switchView("nav-ports", "view-ports");
+        document.getElementById("nav-vulns").onclick = () => switchView("nav-vulns", "view-vulns");
+        document.getElementById("nav-search").onclick = () => switchView("nav-search", "view-search");
+        document.getElementById("nav-docs").onclick = () => switchView("nav-docs", "view-docs");
+        document.getElementById("nav-settings").onclick = () => switchView("nav-settings", "view-settings");
+
+        document.getElementById('min-btn').onclick = () => ipcRenderer.send('minimize-app');
+        document.getElementById('max-btn').onclick = () => ipcRenderer.send('maximize-app');
+        document.getElementById('close-btn').onclick = () => ipcRenderer.send('close-app');
+
+        function addLog(text) {
+            const logs = document.getElementById("terminal-logs");
+            const div = document.createElement("div");
+            div.className = "log-entry";
+            div.innerHTML = `<span style="color:#444">[${new Date().toLocaleTimeString()}]</span> ${text}`;
+            logs.appendChild(div);
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        document.getElementById("scanBtn").onclick = () => {
+            const target = document.getElementById("targetInput").value.trim();
+            if(!target) return;
+            document.getElementById("resultsBody").innerHTML = "<tr><td colspan='6' style='text-align:center; color:var(--accent-purple)'>RUNNING_REAL_NMAP_SCAN...</td></tr>";
+            ipcRenderer.send('run-nmap', target);
+            addLog(`Scanning target: ${target}`);
+        };
+
+        ipcRenderer.on('nmap-result', (event, data) => {
+            const body = document.getElementById("resultsBody");
+            body.innerHTML = "";
+            let count = 0;
+            const lines = data.split('\n');
+            lines.forEach(line => {
+                const match = line.match(/(\d+)\/(tcp|udp)\s+(\w+)\s+(.*)/);
+                if(match) {
+                    count++;
+                    const row = document.createElement('tr');
+                    
+                    const cells = [
+                        match[1], 
+                        match[2].toUpperCase(), 
+                        match[4].trim(), 
+                        { text: match[3].toUpperCase(), class: 'badge state-open' },
+                        { text: 'ACTIVE', color: '#a371ff', class: 'badge' },
+                        '-'
+                    ];
+
+                    cells.forEach(c => {
+                        const td = document.createElement('td');
+                        if (typeof c === 'object') {
+                            const span = document.createElement('span');
+                            span.textContent = c.text;
+                            if (c.class) span.className = c.class;
+                            if (c.color) span.style.color = c.color;
+                            td.appendChild(span);
+                        } else {
+                            td.textContent = c;
+                        }
+                        row.appendChild(td);
+                    });
+                    body.appendChild(row);
+                }
+            });
+            document.getElementById("count-ports").innerText = count;
+            document.getElementById("count-open").innerText = count;
+            addLog(`Nmap finished. ${count} nodes found.`);
+        });
+
+        document.getElementById("vulnScanBtn").onclick = () => {
+            const target = document.getElementById("vulnTargetInput").value.trim();
+            if(!target) return;
+            document.getElementById("vulnResultsBody").innerHTML = "<tr><td colspan='5' style='text-align:center'>INJECTING_PAYLOADS...</td></tr>";
+            ipcRenderer.send('run-xss-check', target);
+            addLog(`XSS Engine started on: ${target}`);
+        };
+
+        ipcRenderer.on('xss-result', (event, res) => {
+            const body = document.getElementById("vulnResultsBody");
+            if(body.innerHTML.includes("INJECTING")) body.innerHTML = "";
+            
+            const row = document.createElement('tr');
+
+            const tdPayload = document.createElement('td');
+            tdPayload.style.color = "var(--accent-purple)";
+            tdPayload.style.fontSize = "10px";
+            tdPayload.textContent = res.payload.length > 20 ? res.payload.substring(0, 20) + "..." : res.payload;
+            row.appendChild(tdPayload);
+
+            const tdTarget = document.createElement('td');
+            tdTarget.style.fontSize = "10px";
+            tdTarget.textContent = res.target;
+            row.appendChild(tdTarget);
+
+            const tdMethod = document.createElement('td');
+            tdMethod.textContent = "GET";
+            row.appendChild(tdMethod);
+
+            const tdStatus = document.createElement('td');
+            tdStatus.style.color = res.vulnerable ? '#ff4b5c' : '#888';
+            tdStatus.textContent = res.vulnerable ? 'VULNERABLE' : 'SAFE';
+            row.appendChild(tdStatus);
+
+            const tdLevel = document.createElement('td');
+            const spanLevel = document.createElement('span');
+            spanLevel.className = `badge ${res.vulnerable ? 'risk-high' : 'risk-low'}`;
+            spanLevel.textContent = res.vulnerable ? 'CRITICAL' : 'LOW';
+            tdLevel.appendChild(spanLevel);
+            row.appendChild(tdLevel);
+
+            body.appendChild(row);
+
+            if(res.vulnerable) {
+                document.getElementById("count-vulns").innerText = parseInt(document.getElementById("count-vulns").innerText) + 1;
+                document.getElementById("count-critical").innerText = parseInt(document.getElementById("count-critical").innerText) + 1;
+                addLog(`CRITICAL: XSS found at ${res.target}`);
+            }
+        });
+
+        document.getElementById("searchBtn").onclick = async () => {
+            const target = document.getElementById("searchInput").value.trim();
+            if(!target) return;
+            const content = document.getElementById("searchContent");
+            content.innerHTML = "> Querying IP-API databases...";
+            try {
+                const res = await fetch(`http://ip-api.com/json/${target}`);
+                const data = await res.json();
+                if(data.status === "success") {
+                    content.innerHTML = `> TARGET: ${data.query}<br>> ISP: ${data.isp}<br>> ORG: ${data.org}<br>> LOC: ${data.city}, ${data.country}<br>> TZ: ${data.timezone}`;
+                    document.getElementById("dns-data").innerText = `${data.lat}, ${data.lon}`;
+                    document.getElementById("sub-data").innerText = data.zip;
+                } else { content.innerHTML = "> Error: Trace failed."; }
+            } catch(e) { content.innerHTML = "> Network error."; }
+        };
+
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('dragover');
+        dropZone.ondrop = async (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            
+            document.getElementById('leak-data').innerText = file.path;
+            addLog(`Image dropped: ${file.name}`);
+            
+            if (!GOOGLE_API_KEY) {
+                addLog("ERROR: Google Vision API Key missing in Settings.");
+                return;
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                    const base64Image = reader.result.replace(/^data:image\/(png|jpg|jpeg);base64,/, "");
+                    const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_API_KEY}`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            requests: [{
+                                image: { content: base64Image },
+                                features: [{ type: 'LABEL_DETECTION', maxResults: 5 }]
+                            }]
+                        })
+                    });
+                    const result = await response.json();
+                    const labels = result.responses[0].labelAnnotations.map(l => l.description).join(", ");
+                    document.getElementById('social-data').innerText = labels || "No data found";
+                    addLog(`Vision Analysis complete: ${labels}`);
+                };
+                reader.readAsDataURL(file);
+            } catch (err) { addLog("Vision API request failed."); }
+        };
+
+        document.getElementById('saveKeyBtn').onclick = () => {
+            GOOGLE_API_KEY = document.getElementById('api-key-input').value.trim();
+            addLog(GOOGLE_API_KEY ? "Vision API Key stored." : "Key cleared.");
+        };
+
+        function copyText(text) { navigator.clipboard.writeText(text); addLog("Copied: " + text); }
+    </script>
+</body>
+</html>
